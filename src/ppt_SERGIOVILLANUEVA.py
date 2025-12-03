@@ -29,10 +29,11 @@ OBJETIVO:
 
 ¡BUENA SUERTE!
 """
-
+import time
 from pathlib import Path
 import os
 import pickle
+import warnings
 import pandas as pd
 import numpy as np
 from collections import Counter
@@ -42,6 +43,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+warnings.filterwarnings("ignore", message="X does not have valid feature names")
 
 
 # Configuracion de rutas
@@ -77,7 +80,7 @@ class PPTFeatureGenerator:
         if jugada_jugador == jugada_oponente:
             resultado = "empate"
 
-        if PIERDE_CONTRA[NUM_A_JUGADA[jugada_jugador]] == NUM_A_JUGADA[jugada_oponente]:
+        if PIERDE_CONTRA[jugada_jugador] == jugada_oponente:
             resultado = "derrota"
 
         return resultado
@@ -461,8 +464,8 @@ def cargar_y_preparar_datos(archivo_csv):
         print(f"ERROR: El CSV debe tener columnas: {columnas_necesarias}")
         return None, None
 
-    df['jugada1'] = df['jugada1'].str.lower().map(JUGADA_A_NUM)
-    df['jugada2'] = df['jugada2'].str.lower().map(JUGADA_A_NUM)
+    df['jugada1'] = df['jugada1'].str.lower()
+    df['jugada2'] = df['jugada2'].str.lower()
 
     # TU CÓDIGO AQUÍ
     feature_gen = PPTFeatureGenerator()
@@ -684,13 +687,15 @@ class JugadorIA:
         except FileNotFoundError:
             print("Modelo no encontrado. Entrena primero.")
 
-    def registrar_ronda(self, jugada_j1: str, jugada_j2: str):
+    def registrar_ronda(self, jugada_j1: str, jugada_j2: str, tiempo_j1: float, tiempo_j2: float):
         """
         Registra una ronda jugada para actualizar el historial.
 
         Args:
             jugada_j1: Jugada del jugador 1
             jugada_j2: Jugada del oponente
+            tiempo_j1: Tiempo del jugador 1
+            tiempo_j2: Tiempo del jugador 2
         """
         self.historial_jugador.append(jugada_j1)
         self.historial_oponente.append(jugada_j2)
@@ -700,6 +705,9 @@ class JugadorIA:
 
         self.historial.append((jugada_j1, jugada_j2))
         self.historial_global.append((jugada_j1, jugada_j2))
+
+        self.tiempo1 = tiempo_j1
+        self.tiempo2 = tiempo_j2
 
         self.numero_ronda += 1
 
@@ -745,22 +753,25 @@ class JugadorIA:
         X = self.obtener_features_actuales().reshape(1, -1)
         pred = self.modelo.predict(X)[0]
 
-        return NUM_A_JUGADA[pred]
+        return pred
 
-    def decidir_jugada(self) -> str:
+    def decidir_jugada(self) -> tuple[str, float]:
         """
         Decide que jugada hacer para ganar al oponente.
 
         Returns:
             La jugada que gana a la prediccion del oponente
         """
+        start_time = time.time()
         prediccion_oponente = self.predecir_jugada_oponente()
 
         if prediccion_oponente is None:
-            return np.random.choice(["piedra", "papel", "tijera"])
+            current_time = time.time()
+            return np.random.choice(["piedra", "papel", "tijera"]), round(current_time - start_time, 2)
 
         # Juega lo que le gana a la prediccion
-        return PIERDE_CONTRA[prediccion_oponente]
+        current_time = time.time()
+        return PIERDE_CONTRA[prediccion_oponente], round(current_time - start_time, 2)
 
 
 # =============================================================================

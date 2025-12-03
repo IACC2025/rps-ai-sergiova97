@@ -22,7 +22,7 @@ from pathlib import Path
 # Agregar el directorio src al path para importar modelo
 sys.path.insert(0, str(Path(__file__).parent))
 
-from modelo import JugadorIA, JUGADA_A_NUM, NUM_A_JUGADA, GANA_A
+from ppt_SERGIOVILLANUEVA import JugadorIA, JUGADA_A_NUM, NUM_A_JUGADA, GANA_A
 
 
 # Mapeo de entrada a jugada
@@ -85,8 +85,7 @@ def leer_jugada_humano() -> tuple[str, float]:
 
         if entrada in ENTRADA_A_JUGADA:
             current_time = time.time()
-            selection_time = round(current_time - start_time, 2)
-            return ENTRADA_A_JUGADA[entrada], selection_time
+            return ENTRADA_A_JUGADA[entrada], round(current_time - start_time, 2)
 
         print("Jugada no valida. Intenta de nuevo.")
 
@@ -159,13 +158,13 @@ def evaluar(num_rondas: int = 50):
         jugada_humano = leer_jugada_humano()
 
         # Determinar resultado (desde perspectiva IA)
-        resultado = obtener_resultado(jugada_ia, jugada_humano[0])
+        resultado = obtener_resultado(jugada_ia[0], jugada_humano[0])
 
         # Mostrar resultado
-        mostrar_ronda(ronda, jugada_ia, jugada_humano[0], resultado)
+        mostrar_ronda(ronda, jugada_ia[0], jugada_humano[0], resultado)
 
         # Registrar en el historial de la IA
-        ia.registrar_ronda(jugada_ia, jugada_humano[0])
+        ia.registrar_ronda(jugada_ia[0], jugada_humano[0], jugada_ia[1], jugada_humano[1])
 
         # Actualizar contadores
         if resultado == "victoria":
