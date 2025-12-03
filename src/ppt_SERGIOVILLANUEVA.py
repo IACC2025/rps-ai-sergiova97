@@ -48,6 +48,14 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 RUTA_PROYECTO = Path(__file__).parent.parent
 RUTA_DATOS = RUTA_PROYECTO / "data" / "partidas.csv"
 RUTA_MODELO = RUTA_PROYECTO / "models" / "modelo_entrenado.pkl"
+
+# Mapeo de jugadas a numeros (para el modelo)
+JUGADA_A_NUM = {"piedra": 0, "papel": 1, "tijera": 2}
+NUM_A_JUGADA = {0: "piedra", 1: "papel", 2: "tijera"}
+
+# Que jugada gana a cual
+GANA_A = {"piedra": "tijera", "papel": "piedra", "tijera": "papel"}
+PIERDE_CONTRA = {"piedra": "papel", "papel": "tijera", "tijera": "piedra"}
 # =============================================================================
 # PARTE 1: GENERAR FEATURES
 # =============================================================================
@@ -56,13 +64,6 @@ class PPTFeatureGenerator:
     """
     Genera features para el modelo de PPT
     """
-
-    def __init__(self):
-        self.jugadas_counter = {
-            "piedra": "papel",
-            "papel": "tijera",
-            "tijera": "piedra"
-        }
 
     def calcular_resultado(self, jugada_jugador, jugada_oponente):
         """
@@ -76,7 +77,7 @@ class PPTFeatureGenerator:
         if jugada_jugador == jugada_oponente:
             resultado = "empate"
 
-        if self.jugadas_counter[jugada_jugador] == jugada_oponente:
+        if PIERDE_CONTRA[NUM_A_JUGADA[jugada_jugador]] == NUM_A_JUGADA[jugada_oponente]:
             resultado = "derrota"
 
         return resultado
@@ -460,8 +461,8 @@ def cargar_y_preparar_datos(archivo_csv):
         print(f"ERROR: El CSV debe tener columnas: {columnas_necesarias}")
         return None, None
 
-    df['jugada1'] = df['jugada1'].str.lower()
-    df['jugada2'] = df['jugada2'].str.lower()
+    df['jugada1'] = df['jugada1'].str.lower().map(JUGADA_A_NUM)
+    df['jugada2'] = df['jugada2'].str.lower().map(JUGADA_A_NUM)
 
     # TU CÓDIGO AQUÍ
     feature_gen = PPTFeatureGenerator()
@@ -653,54 +654,113 @@ def cargar_modelo(ruta: str = None):
 
 class JugadorIA:
     """
-    Jugador de PPT con IA
+    Clase que encapsula el modelo para jugar.
 
-    TODO: Implementa esta clase
+    TODO: Completa esta clase para que pueda:
+    - Cargar un modelo entrenado
+    - Mantener historial de la partida actual
+    - Predecir la proxima jugada del oponente
+    - Decidir que jugada hacer para ganar
     """
 
-    def __init__(self, modelo, feature_generator):
-        self.modelo = modelo
-        self.feature_gen = feature_generator
+    def __init__(self, ruta_modelo: str = None):
+        """Inicializa el jugador IA."""
+        self.modelo = None
+        self.historial_jugador = []
         self.historial_oponente = []
-        self.historial_propio = []
+        self.historial = []
+        self.historial_jugador_global = []
+        self.historial_oponente_global = []
+        self.historial_global = []
+
         self.numero_ronda = 0
+        self.tiempo1 = 0
+        self.tiempo2 = 0
 
-        self.counter = {
-            'piedra': 'papel',
-            'papel': 'tijera',
-            'tijera': 'piedra'
-        }
+        self.feature_gen = PPTFeatureGenerator()
 
-    def predecir_y_jugar(self):
+        try:
+            self.modelo = cargar_modelo(ruta_modelo)
+        except FileNotFoundError:
+            print("Modelo no encontrado. Entrena primero.")
+
+    def registrar_ronda(self, jugada_j1: str, jugada_j2: str):
         """
-        Predice la próxima jugada del oponente y devuelve el counter
+        Registra una ronda jugada para actualizar el historial.
 
-        TODO: Implementa esta función
-        1. Incrementar número de ronda
-        2. Si es ronda 1, jugar aleatorio
-        3. Generar features basadas en historial
-        4. Predecir jugada del oponente con el modelo
-        5. Jugar el counter
-        6. Retornar tu jugada
-
-        Returns:
-            str: jugada a realizar ('piedra', 'papel', o 'tijera')
+        Args:
+            jugada_j1: Jugada del jugador 1
+            jugada_j2: Jugada del oponente
         """
+        self.historial_jugador.append(jugada_j1)
+        self.historial_oponente.append(jugada_j2)
+
+        self.historial_jugador_global.append(jugada_j1)
+        self.historial_oponente_global.append(jugada_j2)
+
+        self.historial.append((jugada_j1, jugada_j2))
+        self.historial_global.append((jugada_j1, jugada_j2))
+
         self.numero_ronda += 1
 
-        # TODO: Implementa la lógica
-        # TU CÓDIGO AQUÍ
-        pass
-
-    def registrar_resultado(self, mi_jugada, jugada_oponente):
+    def obtener_features_actuales(self) -> np.ndarray:
         """
-        Registra el resultado de una ronda
+        Genera las features basadas en el historial actual.
 
-        TODO: Implementa esta función
-        Actualiza los historiales
+        - Usa el historial para calcular las mismas features que usaste en entrenamiento
+        - Retorna un array con las features
+
+        Returns:
+            Array con las features para la prediccion
         """
-        # TU CÓDIGO AQUÍ
-        pass
+        features = self.feature_gen.generar_features_basicas(
+            self.historial_oponente,
+            self.historial_jugador,
+            self.historial_oponente_global,
+            self.historial_jugador_global,
+            self.historial,
+            self.historial_global,
+            self.numero_ronda,
+            self.tiempo1,
+            self.tiempo2
+        )
+
+        return np.array(list(features.values()), dtype=float)
+
+    def predecir_jugada_oponente(self) -> str:
+        """
+        Predice la proxima jugada del oponente.
+
+        - Usa obtener_features_actuales() para obtener las features
+        - Usa el modelo para predecir
+        - Convierte la prediccion numerica a texto
+
+        Returns:
+            Jugada predicha del oponente (piedra/papel/tijera)
+        """
+        if self.modelo is None:
+            # Si no hay modelo, juega aleatorio
+            return np.random.choice(["piedra", "papel", "tijera"])
+
+        X = self.obtener_features_actuales().reshape(1, -1)
+        pred = self.modelo.predict(X)[0]
+
+        return NUM_A_JUGADA[pred]
+
+    def decidir_jugada(self) -> str:
+        """
+        Decide que jugada hacer para ganar al oponente.
+
+        Returns:
+            La jugada que gana a la prediccion del oponente
+        """
+        prediccion_oponente = self.predecir_jugada_oponente()
+
+        if prediccion_oponente is None:
+            return np.random.choice(["piedra", "papel", "tijera"])
+
+        # Juega lo que le gana a la prediccion
+        return PIERDE_CONTRA[prediccion_oponente]
 
 
 # =============================================================================

@@ -284,16 +284,15 @@ class JugadorIA:
     - Decidir que jugada hacer para ganar
     """
 
-    def __init__(self, ruta_modelo: str = None):
+    def __init__(self, ruta_modelo: str = RUTA_MODELO):
         """Inicializa el jugador IA."""
         self.modelo = None
         self.historial = []  # Lista de (jugada_j1, jugada_j2)
 
-        # TODO: Carga el modelo si existe
-        # try:
-        #     self.modelo = cargar_modelo(ruta_modelo)
-        # except FileNotFoundError:
-        #     print("Modelo no encontrado. Entrena primero.")
+        try:
+            self.modelo = cargar_modelo(ruta_modelo)
+        except FileNotFoundError:
+            print("Modelo no encontrado. Entrena primero.")
 
     def registrar_ronda(self, jugada_j1: str, jugada_j2: str):
         """

@@ -16,6 +16,7 @@ El evaluador:
 """
 
 import sys
+import time
 from pathlib import Path
 
 # Agregar el directorio src al path para importar modelo
@@ -75,14 +76,17 @@ def obtener_resultado(jugada_ia: str, jugada_humano: str) -> str:
         return "derrota"
 
 
-def leer_jugada_humano() -> str:
+def leer_jugada_humano() -> tuple[str, float]:
     """Lee la jugada del humano."""
     while True:
         print("\n[1/p] Piedra  [2/a] Papel  [3/t] Tijera")
+        start_time = time.time()
         entrada = input("Tu jugada: ").lower().strip()
 
         if entrada in ENTRADA_A_JUGADA:
-            return ENTRADA_A_JUGADA[entrada]
+            current_time = time.time()
+            selection_time = round(current_time - start_time, 2)
+            return ENTRADA_A_JUGADA[entrada], selection_time
 
         print("Jugada no valida. Intenta de nuevo.")
 
@@ -155,13 +159,13 @@ def evaluar(num_rondas: int = 50):
         jugada_humano = leer_jugada_humano()
 
         # Determinar resultado (desde perspectiva IA)
-        resultado = obtener_resultado(jugada_ia, jugada_humano)
+        resultado = obtener_resultado(jugada_ia, jugada_humano[0])
 
         # Mostrar resultado
-        mostrar_ronda(ronda, jugada_ia, jugada_humano, resultado)
+        mostrar_ronda(ronda, jugada_ia, jugada_humano[0], resultado)
 
         # Registrar en el historial de la IA
-        ia.registrar_ronda(jugada_ia, jugada_humano)
+        ia.registrar_ronda(jugada_ia, jugada_humano[0])
 
         # Actualizar contadores
         if resultado == "victoria":
