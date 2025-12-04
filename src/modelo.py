@@ -350,7 +350,6 @@ class JugadorIA:
         Returns:
             La jugada que gana a la prediccion del oponente
         """
-        t
         prediccion_oponente = self.predecir_jugada_oponente()
 
         if prediccion_oponente is None:

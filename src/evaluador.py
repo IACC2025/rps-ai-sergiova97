@@ -22,7 +22,7 @@ from pathlib import Path
 # Agregar el directorio src al path para importar modelo
 sys.path.insert(0, str(Path(__file__).parent))
 
-from ppt_SERGIOVILLANUEVA import JugadorIA, JUGADA_A_NUM, NUM_A_JUGADA, GANA_A
+from ppt_SERGIOVILLANUEVA_V2 import JugadorIA, JUGADA_A_NUM, NUM_A_JUGADA, GANA_A
 
 
 # Mapeo de entrada a jugada

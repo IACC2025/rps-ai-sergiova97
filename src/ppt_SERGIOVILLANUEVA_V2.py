@@ -112,12 +112,12 @@ class PPTFeatureGenerator:
             'fase_inicio': 0,
             'fase_medio': 0,
             'fase_final': 0,
-            'reaccion_rapida_jugador1': 0,
-            'reaccion_media_jugador1': 0,
-            'reaccion_lenta_jugador1': 0,
-            'reaccion_rapida_jugador2': 0,
-            'reaccion_media_jugador2': 0,
-            'reaccion_lenta_jugador2': 0,
+            #'reaccion_rapida_jugador1': 0,
+            #'reaccion_media_jugador1': 0,
+            #'reaccion_lenta_jugador1': 0,
+            #'reaccion_rapida_jugador2': 0,
+            #'reaccion_media_jugador2': 0,
+            #'reaccion_lenta_jugador2': 0,
         }
 
         self.generar_features_frecuencias_partida(features, historial_jugador, historial_oponente, historial_partida)
@@ -142,20 +142,20 @@ class PPTFeatureGenerator:
         self.generar_features_cambio_derrota(features, historial_jugador, historial_oponente)
         self.generar_features_jugar_contra(features, historial_jugador, historial_oponente)
 
-        if tiempo1 < 2:
-            features['reaccion_rapida_jugador1'] = 1
-        elif tiempo1 <= 4.45:
-            features['reaccion_media_jugador1'] = 1
-        else:
-            features['reaccion_lenta_jugador1'] = 1
-
-        if tiempo2 < 2:
-            features['reaccion_rapida_jugador2'] = 1
-        elif tiempo2 <= 4.45:
-            features['reaccion_media_jugador2'] = 1
-        else:
-            features['reaccion_lenta_jugador2'] = 1
-
+        #if tiempo1 < 2:
+        #    features['reaccion_rapida_jugador1'] = 1
+        #elif tiempo1 <= 4.45:
+        #    features['reaccion_media_jugador1'] = 1
+        #else:
+        #    features['reaccion_lenta_jugador1'] = 1
+        #
+        #if tiempo2 < 2:
+        #    features['reaccion_rapida_jugador2'] = 1
+        #elif tiempo2 <= 4.45:
+        #    features['reaccion_media_jugador2'] = 1
+        #else:
+        #    features['reaccion_lenta_jugador2'] = 1
+        #
         return features
 
     def generar_features_frecuencias_partida(self, features, historial_jugador, historial_oponente, historial_partida):
