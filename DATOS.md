@@ -41,9 +41,14 @@ Elaboramos un pequeño programa para jugar contra otra persona. En él recogemos
 ```
 (Explica aqui como recogiste los datos. Si usaste un programa,
 describe brevemente como funciona. Si fue manual, explica el proceso.)
+Se creó un programa para jugar partidas 1v1. De cada partida se recogen el número de la ronda, 
+la jugada de ambos y su tiempo de respuesta.
 
+También se han recogido datos de otras personas (datos de la clase de DAM2, concreatamente de David García),
+se ha intentado juntarlos limpiando formato, todos los csv que se han usado para intentar sacar el mejor modelo
+se comparten en este proyecto.
 
-
+El nuestro propio es el 'general1vs1.csv'. 
 
 ```
 ---
@@ -52,17 +57,18 @@ describe brevemente como funciona. Si fue manual, explica el proceso.)
 
 Si capturaste datos extra ademas de los basicos, marcalos aqui:
 
-- [ ] `tiempo_reaccion_ms` - Tiempo que tardo el jugador en responder
+- [x] `tiempo_reaccion_ms` - Tiempo que tardo el jugador en responder
 - [ ] `timestamp` - Fecha/hora de cada jugada
 - [ ] `sesion` - ID de sesion de juego
-- [ ] `resultado` - victoria/derrota/empate
-- [ ] Otro: _________________
+- [x] `resultado` - victoria/derrota/empate
+- [x] Otro: ronda
 
 ### Descripcion de datos adicionales:
 
 ```
 (Si capturaste datos extra, explica aqui por que y como los usas)
 
+ronda: En cada ejecución del programa la ronda se resetea a 0 para ver cuantas rondas tiene cada partida
 
 ```
 
@@ -70,12 +76,18 @@ Si capturaste datos extra ademas de los basicos, marcalos aqui:
 
 ## Estadisticas del dataset
 
-- **Total de rondas:** _____
-- **Numero de sesiones/partidas:** _____
-- **Contra cuantas personas diferentes:** _____
+- **Total de rondas:** 369
+- **Numero de sesiones/partidas:** 50 (de media)
+- **Contra cuantas personas diferentes:** 5
 
 ### Tipo de IA:
 
 - [ ] **IA Especifica**: Entrenada para ganar a UNA persona concreta
   - Nombre/identificador del oponente: _________________
-- [ ] **IA General**: Entrenada para ganar a cualquier oponente
+- [x] **IA General**: Entrenada para ganar a cualquier oponente
+
+---
+
+## Información adicional
+
+Se han revisado varios modelos, todos ellos se comparten, el que mejor consideramos es el que está por defecto.

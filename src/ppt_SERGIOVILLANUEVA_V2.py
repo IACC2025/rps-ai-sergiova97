@@ -50,7 +50,7 @@ warnings.filterwarnings("ignore", message="X does not have valid feature names")
 # Configuracion de rutas
 RUTA_PROYECTO = Path(__file__).parent.parent
 RUTA_DATOS = RUTA_PROYECTO / "data" / "partidas.csv"
-RUTA_MODELO = RUTA_PROYECTO / "models" / "modelo_entrenado.pkl"
+RUTA_MODELO = RUTA_PROYECTO / "models" / "modelo_sin_fases.pkl"
 
 # Mapeo de jugadas a numeros (para el modelo)
 JUGADA_A_NUM = {"piedra": 0, "papel": 1, "tijera": 2}
@@ -109,15 +109,15 @@ class PPTFeatureGenerator:
         """
         features = {
             'numero_ronda': 0,
-            'fase_inicio': 0,
-            'fase_medio': 0,
-            'fase_final': 0,
-            #'reaccion_rapida_jugador1': 0,
-            #'reaccion_media_jugador1': 0,
-            #'reaccion_lenta_jugador1': 0,
-            #'reaccion_rapida_jugador2': 0,
-            #'reaccion_media_jugador2': 0,
-            #'reaccion_lenta_jugador2': 0,
+            #'fase_inicio': 0,
+            #'fase_medio': 0,
+            #'fase_final': 0,
+            'reaccion_rapida_jugador1': 0,
+            'reaccion_media_jugador1': 0,
+            'reaccion_lenta_jugador1': 0,
+            'reaccion_rapida_jugador2': 0,
+            'reaccion_media_jugador2': 0,
+            'reaccion_lenta_jugador2': 0,
         }
 
         self.generar_features_frecuencias_partida(features, historial_jugador, historial_oponente, historial_partida)
@@ -130,32 +130,32 @@ class PPTFeatureGenerator:
         features['numero_ronda'] = numero_ronda
 
         # fase_inicio, fase_medio, fase_final
-        if numero_ronda <= 5:
-            features['fase_inicio'] = 1
-        elif numero_ronda <= 15:
-            features['fase_medio'] = 1
-        else:
-            features['fase_final'] = 1
+        #if numero_ronda <= 5:
+        #    features['fase_inicio'] = 1
+        #elif numero_ronda <= 15:
+        #    features['fase_medio'] = 1
+        #else:
+        #    features['fase_final'] = 1
 
         # otras features
         self.generar_features_mantener_victoria(features, historial_jugador, historial_oponente)
         self.generar_features_cambio_derrota(features, historial_jugador, historial_oponente)
-        self.generar_features_jugar_contra(features, historial_jugador, historial_oponente)
+        #self.generar_features_jugar_contra(features, historial_jugador, historial_oponente)
 
-        #if tiempo1 < 2:
-        #    features['reaccion_rapida_jugador1'] = 1
-        #elif tiempo1 <= 4.45:
-        #    features['reaccion_media_jugador1'] = 1
-        #else:
-        #    features['reaccion_lenta_jugador1'] = 1
-        #
-        #if tiempo2 < 2:
-        #    features['reaccion_rapida_jugador2'] = 1
-        #elif tiempo2 <= 4.45:
-        #    features['reaccion_media_jugador2'] = 1
-        #else:
-        #    features['reaccion_lenta_jugador2'] = 1
-        #
+        if tiempo1 < 2:
+            features['reaccion_rapida_jugador1'] = 1
+        elif tiempo1 <= 4.45:
+            features['reaccion_media_jugador1'] = 1
+        else:
+            features['reaccion_lenta_jugador1'] = 1
+
+        if tiempo2 < 2:
+            features['reaccion_rapida_jugador2'] = 1
+        elif tiempo2 <= 4.45:
+            features['reaccion_media_jugador2'] = 1
+        else:
+            features['reaccion_lenta_jugador2'] = 1
+
         return features
 
     def generar_features_frecuencias_partida(self, features, historial_jugador, historial_oponente, historial_partida):
@@ -269,9 +269,9 @@ class PPTFeatureGenerator:
         features['prob_cambio_derrota_jugador'] = self.calcular_cambio_derrota(historial_jugador, historial_oponente)
         features['prob_cambio_derrota_jugador2'] = self.calcular_cambio_derrota(historial_oponente, historial_jugador)
 
-    def generar_features_jugar_contra(self, features, historial_jugador, historial_oponente):
-        features['prob_jugar_contra_jugador'] = self.calcular_jugar_contra(historial_jugador, historial_oponente)
-        features['prob_jugar_contra_jugador2'] = self.calcular_jugar_contra(historial_oponente, historial_jugador)
+    #def generar_features_jugar_contra(self, features, historial_jugador, historial_oponente):
+    #    features['prob_jugar_contra_jugador'] = self.calcular_jugar_contra(historial_jugador, historial_oponente)
+    #    features['prob_jugar_contra_jugador2'] = self.calcular_jugar_contra(historial_oponente, historial_jugador)
 
     def safe_lag(self, historial, pos):
         ret = 0
@@ -528,7 +528,7 @@ def entrenar_y_comparar_modelos(X_train, X_test, y_train, y_test, start_idx, end
     modelos = {
         'KNN (K=5)': KNeighborsClassifier(n_neighbors=5),
         'Decision Tree': DecisionTreeClassifier(max_depth=5, random_state=42),
-        'Random Forest': RandomForestClassifier(n_estimators=50, max_depth=5, random_state=42)
+        'Random Forest': RandomForestClassifier(n_estimators=50, max_depth=5, max_features= 0.7, random_state=42)
     }
 
     resultados_ventana = []
@@ -816,7 +816,7 @@ def main():
     for rank, m in enumerate(top_10, start=1):
         print(f"{rank}. {m['nombre']:<15} | acc={m['accuracy']:.4f} | ventana {m['start_idx']}–{m['end_idx']}")
 
-    mejor = top_10[1]
+    mejor = top_10[0]
 
     evaluar_mejor_modelo(
         mejor['nombre'],
