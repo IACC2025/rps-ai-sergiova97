@@ -41,7 +41,8 @@ Elaboramos un pequeño programa para jugar contra otra persona. En él recogemos
 ```
 (Explica aqui como recogiste los datos. Si usaste un programa,
 describe brevemente como funciona. Si fue manual, explica el proceso.)
-Se creó un programa para jugar partidas 1v1. De cada partida se recogen el número de la ronda, 
+
+Se creó un programa para jugar partidas 1v1 (piedraPapelTijeras1vs1.py). De cada partida se recogen el número de la ronda, 
 la jugada de ambos y su tiempo de respuesta.
 
 También se han recogido datos de otras personas (datos de la clase de DAM2, concreatamente de David García),
