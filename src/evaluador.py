@@ -22,7 +22,7 @@ from pathlib import Path
 # Agregar el directorio src al path para importar modelo
 sys.path.insert(0, str(Path(__file__).parent))
 
-from ppt_SERGIOVILLANUEVA_V2 import JugadorIA, JUGADA_A_NUM, NUM_A_JUGADA, GANA_A
+from modelo import JugadorIA, JUGADA_A_NUM, NUM_A_JUGADA, GANA_A
 
 
 # Mapeo de entrada a jugada
@@ -138,7 +138,7 @@ def evaluar(num_rondas: int = 50):
         if ia.modelo is None:
             print("[!] ADVERTENCIA: No se cargo ningun modelo.")
             print("[!] La IA jugara de forma ALEATORIA.")
-            print("[!] Entrena tu modelo primero con: python src/modelo.py\n")
+            print("[!] Entrena tu modelo primero con: python src/wRHQAEHE.py\n")
     except Exception as e:
         print(f"[!] Error al cargar el modelo: {e}")
         print("[!] La IA jugara de forma ALEATORIA.\n")
